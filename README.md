@@ -7,3 +7,4 @@
 - файл terraformrc и terraform.rc
 
 new line
+new line2
