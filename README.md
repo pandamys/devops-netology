@@ -5,3 +5,6 @@
 - все файл .tfvars;
 - все файлы override в разных вариантах написания;
 - файл terraformrc и terraform.rc
+
+new line
+new line2
