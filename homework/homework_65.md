@@ -6,30 +6,36 @@ ENV container docker
 ENV ES_JAVA_HOME /opt/jdk-17
 ENV ES_USER elasticsearch
 ENV ES_GROUP elasticsearch
-ENV ES_HOME /opt/elasticsearch
-ENV ES_VOL /var/lib/elasticsearch
+ENV ES_HOME /usr/share/elasticsearch
 ENV ES_VERSION 8.0.1
 
+WORKDIR ${ES_HOME}
+
 COPY elasticsearch.yml /usr/share/elasticsearch-${ES_VERSION}/config/elasticsearch.yml
-COPY elasticsearch-${ES_VERSION}-darwin-x86_64.tar.gz /usr/share/elasticsearch
-COPY elasticsearch-${ES_VERSION}-darwin-x86_64.tar.gz.sha512 /usr/share/elasticsearch
-COPY openjdk-17_linux-x64_bin.tar.gz /usr/share/elasticsearch
-WORKDIR /usr/share/elasticsearch
+
+RUN wget https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz;
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.0.1-darwin-x86_64.tar.gz; \
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.0.1-darwin-x86_64.tar.gz.sha512; \
+
+RUN tar xvf openjdk-17_linux-x64_bin.tar.gz; \
+    mv jdk-17 /opt/;
+
 RUN yum -y install wget tar perl-Digest-SHA shasum; \
-    tar xvf openjdk-17_linux-x64_bin.tar.gz; \
-    mv jdk-17 /opt/; \
     mkdir /var/log/elasticsearch /var/lib/elasticsearch /etc/default/elasticsearch /etc/elasticsearch; \
-    groupadd -f ${ES_GROUP} && useradd ${ES_USER} -s /bin/bash -g ${ES_GROUP}; \
-    shasum -a 512 -c elasticsearch-${ES_VERSION}-darwin-x86_64.tar.gz.sha512; \
+    groupadd -f ${ES_GROUP} && useradd ${ES_USER} -s /bin/bash -g ${ES_GROUP};
+
+RUN shasum -a 512 -c elasticsearch-${ES_VERSION}-darwin-x86_64.tar.gz.sha512; \
     tar xfz elasticsearch-${ES_VERSION}-darwin-x86_64.tar.gz; \
     cd elasticsearch-${ES_VERSION}/;
-EXPOSE 9100 9200
+
+EXPOSE 9200
+
 RUN chown -R ${ES_USER}:${ES_GROUP} /usr/share/elasticsearch/; \
     chown -R ${ES_USER}:${ES_GROUP} /var/log/elasticsearch/; \
-    chown -R ${ES_USER}:${ES_GROUP} /var/lib/elasticsearch/; \
     chown -R ${ES_USER}:${ES_GROUP} /etc/default/elasticsearch/; \
     chown -R ${ES_USER}:${ES_GROUP} /etc/elasticsearch/
-CMD ["/bin/bash"]
+
+CMD ["${ES_HOME}/elasticsearch-${ES_VERSION}/bin/elasticsearch"]
 ```
 
 Текст корня
