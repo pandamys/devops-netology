@@ -54,5 +54,256 @@ CMD ["/bin/bash"]
 ```
 
 # Задание 2
+ind-1
+```
+{
+  "ind-1": {
+    "aliases": {},
+    "mappings": {},
+    "settings": {
+      "index": {
+        "routing": {
+          "allocation": {
+            "include": {
+              "_tier_preference": "data_content"
+            }
+          }
+        },
+        "number_of_shards": "1",
+        "provided_name": "ind-1",
+        "creation_date": "1646776279237",
+        "number_of_replicas": "0",
+        "uuid": "4BTN0inMQRukoJXgfxDNEA",
+        "version": {
+          "created": "8000199"
+        }
+      }
+    }
+  }
+}
+```
+
+ind-2
+```
+
+  "ind-2": {
+    "aliases": {},
+    "mappings": {},
+    "settings": {
+      "index": {
+        "routing": {
+          "allocation": {
+            "include": {
+              "_tier_preference": "data_content"
+            }
+          }
+        },
+        "number_of_shards": "2",
+        "provided_name": "ind-2",
+        "creation_date": "1646776301940",
+        "number_of_replicas": "1",
+        "uuid": "yzzsBn_1SG-cBWmT776KpA",
+        "version": {
+          "created": "8000199"
+        }
+      }
+    }
+  }
+}
+```
+
+ind-3
+```
+{
+  "ind-3": {
+    "aliases": {},
+    "mappings": {},
+    "settings": {
+      "index": {
+        "routing": {
+          "allocation": {
+            "include": {
+              "_tier_preference": "data_content"
+            }
+          }
+        },
+        "number_of_shards": "4",
+        "provided_name": "ind-3",
+        "creation_date": "1646776327910",
+        "number_of_replicas": "2",
+        "uuid": "aqaZqIfURW2nYvfKHPpbnQ",
+        "version": {
+          "created": "8000199"
+        }
+      }
+    }
+  }
+}
+```
+
+Жёлтый - означает, что не хватает реплик в онлайне.
 
 # Задание 3
+Запрос на создание репозитория
+```
+PUT https://127.0.0.1:9200/_snapshot/snapshots
+
+{
+  "type": "fs",
+  "settings": {
+    "location": "snapshots"
+  }
+}
+```
+
+Ответ
+```
+{
+  "acknowledged": true
+}
+```
+
+Все индексы
+```
+{
+  "ind-1": {
+    "aliases": {},
+    "mappings": {},
+    "settings": {
+      "index": {
+        "routing": {
+          "allocation": {
+            "include": {
+              "_tier_preference": "data_content"
+            }
+          }
+        },
+        "number_of_shards": "1",
+        "provided_name": "ind-1",
+        "creation_date": "1646776279237",
+        "number_of_replicas": "0",
+        "uuid": "4BTN0inMQRukoJXgfxDNEA",
+        "version": {
+          "created": "8000199"
+        }
+      }
+    }
+  },
+  "ind-2": {
+    "aliases": {},
+    "mappings": {},
+    "settings": {
+      "index": {
+        "routing": {
+          "allocation": {
+            "include": {
+              "_tier_preference": "data_content"
+            }
+          }
+        },
+        "number_of_shards": "2",
+        "provided_name": "ind-2",
+        "creation_date": "1646776301940",
+        "number_of_replicas": "1",
+        "uuid": "yzzsBn_1SG-cBWmT776KpA",
+        "version": {
+          "created": "8000199"
+        }
+      }
+    }
+  },
+  "ind-3": {
+    "aliases": {},
+    "mappings": {},
+    "settings": {
+      "index": {
+        "routing": {
+          "allocation": {
+            "include": {
+              "_tier_preference": "data_content"
+            }
+          }
+        },
+        "number_of_shards": "4",
+        "provided_name": "ind-3",
+        "creation_date": "1646776327910",
+        "number_of_replicas": "2",
+        "uuid": "aqaZqIfURW2nYvfKHPpbnQ",
+        "version": {
+          "created": "8000199"
+        }
+      }
+    }
+  },
+  "test": {
+    "aliases": {},
+    "mappings": {},
+    "settings": {
+      "index": {
+        "routing": {
+          "allocation": {
+            "include": {
+              "_tier_preference": "data_content"
+            }
+          }
+        },
+        "number_of_shards": "1",
+        "provided_name": "test",
+        "creation_date": "1646777619272",
+        "number_of_replicas": "0",
+        "uuid": "5Wb6tBgcTjKJ_GltvquIPg",
+        "version": {
+          "created": "8000199"
+        }
+      }
+    }
+  }
+}
+```
+
+Запрос на создание снапшота
+```
+{
+  "indices": "ind-1,ind-2,ind-3,test",
+  "ignore_unavailable": true,
+  "include_global_state": false,
+  "metadata": {
+    "taken_by": "user123",
+    "taken_because": "backup before upgrading"
+  }
+}
+```
+
+Ответ
+```
+{
+  "accepted": true
+}
+```
+
+Файлы в папке с индексами
+```
+[root@6eeeacfb0e56 elasticsearch]# ll ./elasticsearch-8.0.1/snapshots/snapshots/
+total 20
+-rw-rw-r-- 1 elasticsearch elasticsearch 1425 Mar  8 22:17 index-0
+-rw-rw-r-- 1 elasticsearch elasticsearch    8 Mar  8 22:17 index.latest
+drwxrwxr-x 6 elasticsearch elasticsearch 4096 Mar  8 22:17 indices
+-rw-rw-r-- 1 elasticsearch elasticsearch  202 Mar  8 22:17 meta-Xufbiu3GRZmARuEH1L31qw.dat
+-rw-rw-r-- 1 elasticsearch elasticsearch  393 Mar  8 22:17 snap-Xufbiu3GRZmARuEH1L31qw.dat
+```
+
+Восстановление индекса
+```
+POST https://127.0.0.1:9200/_snapshot/snapshots/my_snapshot/_restore
+
+{
+  "indices": "test"
+}
+```
+
+Ответ
+```
+{
+  "accepted": true
+}
+```
