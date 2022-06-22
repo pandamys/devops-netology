@@ -87,3 +87,6 @@ users:
     ssh_authorized_keys:
       - ssh-rsa AAAAB3Nza...ZcCzP/9 vagrant@vagrant
 ```
+
+# Ответ на вопрос
+Если я правильно понимаю, то создать свой образ AMI можно используя Packer.
